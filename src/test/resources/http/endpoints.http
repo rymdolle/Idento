@@ -1,0 +1,28 @@
+### Auth verify
+GET {{serverUrl}}/api/dev/auth/verify
+Cookie: JWT={{JWTtoken}}
+
+### Auth admin login
+# @no-cookie-jar
+< {% client.global.set("base64UsernamePassword", Window.btoa('admin:nimda')) %}
+POST {{serverUrl}}/api/dev/auth/login
+Authorization: Basic {{base64UsernamePassword}}
+
+> {% client.global.set("JWTtoken", response.body) %}
+
+### Auth user login
+# @no-cookie-jar
+< {% client.global.set("base64UsernamePassword", Window.btoa('user:resu')) %}
+POST {{serverUrl}}/api/dev/auth/login
+Authorization: Basic {{base64UsernamePassword}}
+
+> {% client.global.set("JWTtoken", response.body) %}
+
+### JWKs
+GET {{serverUrl}}/.well-known/jwks.json
+
+### Auth verify login
+< {% client.global.set("base64UsernamePassword", Window.btoa('user:resu')) %}
+GET {{serverUrl}}/api/dev/auth/verify
+Authorization: Basic {{base64UsernamePassword}}
+

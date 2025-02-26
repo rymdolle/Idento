@@ -1,0 +1,35 @@
+server:
+  port: 8000
+  tomcat:
+    accesslog:
+      enabled: true
+spring:
+  application:
+    name: Idento
+  jackson:
+    serialization:
+      indent_output: true
+app:
+  security:
+    jwk:
+      key-size: 2048
+    users:
+      - username: admin
+        password: nimda
+        roles:
+          - ADMIN
+        authorities:
+          - READ
+          - WRITE
+          - DELETE
+      - username: user
+        password: resu
+        roles:
+          - USER
+        authorities:
+          - READ
+          - WRITE
+logging:
+  level:
+    com.rymdis.idento: DEBUG
+    root: INFO
