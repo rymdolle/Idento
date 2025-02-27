@@ -1,5 +1,6 @@
 package com.rymdis.idento
 
+import com.nimbusds.jose.jwk.KeyType
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet
 import com.nimbusds.jose.proc.SecurityContext
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -35,7 +36,7 @@ class IdentoController(
             .expiresAt(now.plusSeconds(2.hours.inWholeSeconds))
             .build()
         val headers = JwsHeader.with {"RS256"}
-            .keyId(jwkSource.jwkSet.keys.first().keyID)
+            .keyId(jwkSource.jwkSet.keys.find { it.keyType == KeyType.RSA }!!.keyID)
             .type("JWT")
             .build()
         val params = JwtEncoderParameters.from(headers, claims)

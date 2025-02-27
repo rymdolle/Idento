@@ -1,12 +1,17 @@
 package com.rymdis.idento.config
 
+import com.nimbusds.jose.JWSAlgorithm
+import com.nimbusds.jose.jwk.Curve
+import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.JWKSet
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet
+import com.nimbusds.jose.proc.JWSVerificationKeySelector
 import com.nimbusds.jose.proc.SecurityContext
+import com.nimbusds.jwt.proc.ConfigurableJWTProcessor
+import com.nimbusds.jwt.proc.DefaultJWTProcessor
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.oauth2.jwt.JwtDecoder
@@ -14,6 +19,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder
 import java.security.KeyPairGenerator
+import java.security.interfaces.ECPublicKey
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
 import java.util.*
@@ -24,17 +30,12 @@ private val log = KotlinLogging.logger {}
 class JwtConfig() {
 
     @Bean
-    fun jwkSource(@Value("\${app.security.jwk.key-size:2048}") keySize: Int): ImmutableJWKSet<SecurityContext> {
-        log.info { "Start generating RSA key pair of $keySize bits" }
-        val kpg = KeyPairGenerator.getInstance("RSA")
-        kpg.initialize(keySize)
-        val key = kpg.generateKeyPair()
-        log.info { "RSA key pair done." }
-        val keys = RSAKey.Builder(key.public as RSAPublicKey)
-            .privateKey(key.private as RSAPrivateKey)
-            .keyID(UUID.randomUUID().toString())
-            .keyUse(KeyUse.SIGNATURE)
-        val jwkSet = JWKSet(keys.build())
+    fun jwkSource(): ImmutableJWKSet<SecurityContext> {
+        val keys = listOf(
+            generateRSAKey(),
+            generateECKey(),
+        )
+        val jwkSet = JWKSet(keys)
         return ImmutableJWKSet<SecurityContext>(jwkSet)
     }
 
@@ -45,8 +46,33 @@ class JwtConfig() {
 
     @Bean
     fun jwtDecoder(jwkSource: ImmutableJWKSet<SecurityContext>): JwtDecoder {
-        val key = jwkSource.jwkSet.keys.first()
-        val rsa = key.toRSAKey().toRSAPublicKey()
-        return NimbusJwtDecoder.withPublicKey(rsa).build()
+        val processor: ConfigurableJWTProcessor<SecurityContext> = DefaultJWTProcessor()
+        val algorithms = setOf(JWSAlgorithm.RS256, JWSAlgorithm.ES256)
+        val selector = JWSVerificationKeySelector(algorithms, jwkSource)
+        processor.jwsKeySelector = selector
+        processor.setJWTClaimsSetVerifier { claims, context -> }
+        return NimbusJwtDecoder(processor)
+    }
+
+    private fun generateRSAKey(keySize: Int = 2048): RSAKey {
+        val kpg = KeyPairGenerator.getInstance("RSA")
+        kpg.initialize(keySize)
+        val key = kpg.generateKeyPair()
+        return RSAKey.Builder(key.public as RSAPublicKey)
+            .privateKey(key.private as RSAPrivateKey)
+            .keyID(UUID.randomUUID().toString())
+            .keyUse(KeyUse.SIGNATURE)
+            .build()
+    }
+
+    private fun generateECKey(keySize: Int = 256): ECKey {
+        val kpg = KeyPairGenerator.getInstance("EC")
+        kpg.initialize(keySize)
+        val key = kpg.generateKeyPair()
+        return ECKey.Builder(Curve.P_256, key.public as ECPublicKey)
+            .privateKey(key.private)
+            .keyID(UUID.randomUUID().toString())
+            .keyUse(KeyUse.SIGNATURE)
+            .build()
     }
 }

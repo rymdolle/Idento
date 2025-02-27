@@ -11,8 +11,6 @@ spring:
       indent_output: true
 app:
   security:
-    jwk:
-      key-size: 2048
     users:
       - username: admin
         password: nimda
