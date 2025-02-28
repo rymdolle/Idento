@@ -36,8 +36,8 @@ class IdentoController(
             .subject(user.username)
             .expiresAt(now.plusSeconds(2.hours.inWholeSeconds))
             .build()
-        val headers = JwsHeader.with {"RS256"}
-            .keyId(jwkSource.jwkSet.keys.find { it.keyType == KeyType.RSA }!!.keyID)
+        val headers = JwsHeader.with {"ES256"}
+            .keyId(jwkSource.jwkSet.keys.find { it.keyType == KeyType.EC }!!.keyID)
             .type("JWT")
             .build()
         val params = JwtEncoderParameters.from(headers, claims)

@@ -33,7 +33,7 @@ class JwtConfig() {
     fun jwkSource(): ImmutableJWKSet<SecurityContext> {
         val keys = listOf(
             generateRSAKey(),
-            generateECKey(),
+            generateECKey(Curve.P_521),
         )
         val jwkSet = JWKSet(keys)
         return ImmutableJWKSet<SecurityContext>(jwkSet)
@@ -57,6 +57,7 @@ class JwtConfig() {
     private fun generateRSAKey(keySize: Int = 2048): RSAKey {
         val kpg = KeyPairGenerator.getInstance("RSA")
         kpg.initialize(keySize)
+        log.info { "Generating RSA key $keySize" }
         val key = kpg.generateKeyPair()
         return RSAKey.Builder(key.public as RSAPublicKey)
             .privateKey(key.private as RSAPrivateKey)
@@ -65,11 +66,16 @@ class JwtConfig() {
             .build()
     }
 
-    private fun generateECKey(keySize: Int = 256): ECKey {
+    private fun generateECKey(curve: Curve = Curve.P_256): ECKey {
+        if (curve !in listOf(Curve.P_256, Curve.P_384, Curve.P_521)) {
+            throw IllegalArgumentException("Invalid curve")
+        }
+        val keySize = curve.toECParameterSpec().order.bitLength()
         val kpg = KeyPairGenerator.getInstance("EC")
         kpg.initialize(keySize)
+        log.info { "Generating EC key $curve" }
         val key = kpg.generateKeyPair()
-        return ECKey.Builder(Curve.P_256, key.public as ECPublicKey)
+        return ECKey.Builder(curve, key.public as ECPublicKey)
             .privateKey(key.private)
             .keyID(UUID.randomUUID().toString())
             .keyUse(KeyUse.SIGNATURE)
