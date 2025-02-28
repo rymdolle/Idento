@@ -31,14 +31,14 @@ class SecurityConfig {
     @Bean
     fun securityFilterChain(
         http: HttpSecurity,
-        userAuthenticationProvider: AuthenticationManager,
+        userAuthenticationManager: AuthenticationManager,
     ): SecurityFilterChain {
 
         return http
             .csrf { it.disable() }
             .securityMatcher("/api/**")
-            .authenticationManager(userAuthenticationProvider)
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .authenticationManager(userAuthenticationManager)
             .authorizeHttpRequests {
                 it.anyRequest().authenticated()
             }
@@ -63,15 +63,15 @@ class SecurityConfig {
     }
 
     @Bean
-    fun userAuthenticationProvider(
+    fun userAuthenticationManager(
         userDetailsService: UserDetailsService,
         passwordEncoder: PasswordEncoder,
-        jwtAuthenticationProvider: JwtAuthenticationProvider,
+        jwtProvider: JwtAuthenticationProvider,
     ): AuthenticationManager {
-        val provider = DaoAuthenticationProvider()
-        provider.setUserDetailsService(userDetailsService)
-        provider.setPasswordEncoder(passwordEncoder)
-        return ProviderManager(provider, jwtAuthenticationProvider)
+        val userProvider = DaoAuthenticationProvider()
+        userProvider.setUserDetailsService(userDetailsService)
+        userProvider.setPasswordEncoder(passwordEncoder)
+        return ProviderManager(userProvider, jwtProvider)
     }
 }
 

@@ -5,6 +5,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet
 import com.nimbusds.jose.proc.SecurityContext
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.oauth2.jwt.JwsHeader
@@ -47,7 +48,10 @@ class IdentoController(
     }
 
     @GetMapping("/api/dev/auth/verify", produces = ["application/json"])
-    fun verify(@AuthenticationPrincipal jwt: Jwt): Map<String, Any> {
+    fun verify(@AuthenticationPrincipal jwt: Jwt?): Map<String, Any> {
+        if (jwt == null) {
+            throw BadCredentialsException("Invalid token")
+        }
         return mapOf(
             "claims" to jwt.claims,
             "headers" to jwt.headers,

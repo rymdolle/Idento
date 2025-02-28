@@ -3,45 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 Not Found</title>
+    <title>404 - Not Found</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f0f0f0;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-        }
-        h1 {
-            font-size: 5em;
+            background-color: white;
+            color: #121212;
+            font-family: Arial, sans-serif;
+            text-align: center;
             margin: 0;
         }
+        .container {
+            max-width: 600px;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
         p {
-            font-size: 1.5em;
+            font-size: 1.2rem;
+            opacity: 0.8;
         }
-        .emoji {
-            font-size: 8em;
-        }
-        a {
-            color: #007BFF;
-            text-decoration: none;
-            font-size: 1.2em;
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #121212;
+                color: white;
+            }
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <div class="emoji">😱</div>
-    <h1>404</h1>
-    <p>Oops! The page you're looking for got lost in space.</p>
+    <h1>404 - Not Found</h1>
+    <p>You have reached the outermost edge of the internet.</p>
+    <p>No content exists beyond this point.</p>
 </div>
 </body>
 </html>

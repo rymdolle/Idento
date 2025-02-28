@@ -3,6 +3,9 @@ server:
   undertow:
     accesslog:
       enabled: true
+  error:
+    whitelabel:
+      enabled: false
 spring:
   application:
     name: Idento
