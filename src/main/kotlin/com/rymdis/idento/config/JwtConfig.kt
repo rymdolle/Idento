@@ -32,7 +32,6 @@ class JwtConfig() {
     @Bean
     fun jwkSource(): ImmutableJWKSet<SecurityContext> {
         val keys = listOf(
-            generateRSAKey(),
             generateECKey(Curve.P_521),
         )
         val jwkSet = JWKSet(keys)
@@ -47,14 +46,21 @@ class JwtConfig() {
     @Bean
     fun jwtDecoder(jwkSource: ImmutableJWKSet<SecurityContext>): JwtDecoder {
         val processor: ConfigurableJWTProcessor<SecurityContext> = DefaultJWTProcessor()
-        val algorithms = setOf(JWSAlgorithm.RS256, JWSAlgorithm.ES256)
+        val algorithms = setOf(
+            JWSAlgorithm.RS256,
+            JWSAlgorithm.RS384,
+            JWSAlgorithm.RS512,
+            JWSAlgorithm.ES256,
+            JWSAlgorithm.ES384,
+            JWSAlgorithm.ES512,
+        )
         val selector = JWSVerificationKeySelector(algorithms, jwkSource)
         processor.jwsKeySelector = selector
         processor.setJWTClaimsSetVerifier { claims, context -> }
         return NimbusJwtDecoder(processor)
     }
 
-    private fun generateRSAKey(keySize: Int = 2048): RSAKey {
+    private fun generateRSAKey(keySize: Int = 2048, alg: JWSAlgorithm = JWSAlgorithm.RS256): RSAKey {
         val kpg = KeyPairGenerator.getInstance("RSA")
         kpg.initialize(keySize)
         log.info { "Generating RSA key $keySize" }
@@ -63,6 +69,7 @@ class JwtConfig() {
             .privateKey(key.private as RSAPrivateKey)
             .keyID(UUID.randomUUID().toString())
             .keyUse(KeyUse.SIGNATURE)
+            .algorithm(alg)
             .build()
     }
 

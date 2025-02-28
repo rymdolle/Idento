@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.NoOpPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.stereotype.Service
 
@@ -49,9 +50,8 @@ class SecurityConfig {
                     jwt.jwkSetUri("https://idento.rymdis.com/.well-known/jwks.json")
                 }
                 oauth2.bearerTokenResolver { request ->
-                    // Resolve bearer first, then check JWT cookie
                     val defaultBearer = DefaultBearerTokenResolver()
-                    defaultBearer.resolve(request) ?: request.cookies?.find { it.name == "JWT" }?.value
+                    defaultBearer.resolve(request)
                 }
             }
             .build()

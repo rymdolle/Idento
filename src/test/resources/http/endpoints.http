@@ -22,17 +22,10 @@ GET {{serverUrl}}/.well-known/jwks.json
 GET {{serverUrl}}/api/dev/auth/verify
 Authorization: Basic {{base64UsernamePassword}}
 
-> {% client.assert(401 === response.status, "") %}
+> {% client.assert(401 === response.status) %}
 
 ### Auth verify Bearer
 GET {{serverUrl}}/api/dev/auth/verify
 Authorization: Bearer {{JWTtoken}}
 
-> {% client.assert(200 === response.status, "") %}
-
-### Auth verify cookie
-GET {{serverUrl}}/api/dev/auth/verify
-Cookie: JWT={{JWTtoken}}
-
-> {% client.assert(200 === response.status, "") %}
-
+> {% client.assert(200 === response.status) %}

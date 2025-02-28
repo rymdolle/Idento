@@ -1,5 +1,7 @@
 package com.rymdis.idento
 
+import com.nimbusds.jose.jwk.Curve
+import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.KeyType
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet
 import com.nimbusds.jose.proc.SecurityContext
@@ -17,7 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
-import kotlin.time.Duration.Companion.hours
+import java.time.temporal.ChronoUnit
 
 
 private val log = KotlinLogging.logger {}
@@ -34,10 +36,17 @@ class IdentoController(
             .issuer("Idento")
             .issuedAt(now)
             .subject(user.username)
-            .expiresAt(now.plusSeconds(2.hours.inWholeSeconds))
+            .expiresAt(now.plus(30, ChronoUnit.MINUTES))
             .build()
-        val headers = JwsHeader.with {"ES256"}
-            .keyId(jwkSource.jwkSet.keys.find { it.keyType == KeyType.EC }!!.keyID)
+        val key = jwkSource.jwkSet.keys.find { it.keyType == KeyType.EC }!!
+        val algorithm = when ((key as ECKey).curve) {
+            Curve.P_256 -> "ES256"
+            Curve.P_384 -> "ES384"
+            Curve.P_521 -> "ES512"
+            else -> throw IllegalArgumentException("Unsupported curve: ${key.curve}")
+        }
+        val headers = JwsHeader.with { algorithm }
+            .keyId(key.keyID)
             .type("JWT")
             .build()
         val params = JwtEncoderParameters.from(headers, claims)
@@ -49,9 +58,7 @@ class IdentoController(
 
     @GetMapping("/api/dev/auth/verify", produces = ["application/json"])
     fun verify(@AuthenticationPrincipal jwt: Jwt?): Map<String, Any> {
-        if (jwt == null) {
-            throw BadCredentialsException("Invalid token")
-        }
+        jwt ?: throw BadCredentialsException("Invalid token")
         return mapOf(
             "claims" to jwt.claims,
             "headers" to jwt.headers,
