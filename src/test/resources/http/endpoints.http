@@ -4,15 +4,21 @@
 POST {{serverUrl}}/api/dev/auth/login
 Authorization: Basic {{base64UsernamePassword}}
 
-> {% client.global.set("JWTtoken", response.body) %}
+> {%
+    client.assert(200 === response.status)
+    client.global.set("JWTtoken", response.body.token)
+%}
 
 ### Auth user login
 # @no-cookie-jar
-< {% client.global.set("base64UsernamePassword", Window.btoa('stina:test')) %}
+< {% client.global.set("base64UsernamePassword", Window.btoa('user:resu')) %}
 POST {{serverUrl}}/api/dev/auth/login
 Authorization: Basic {{base64UsernamePassword}}
 
-> {% client.global.set("JWTtoken", response.body) %}
+> {%
+    client.assert(200 === response.status)
+    client.global.set("JWTtoken", response.body.token)
+ %}
 
 ### JWKs
 GET {{serverUrl}}/.well-known/jwks.json

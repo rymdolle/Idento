@@ -86,7 +86,7 @@ class JwtProperties {
     class JwkKey {
         lateinit var kid: String
         lateinit var kty: String
-        lateinit var use: String
+        var use: String = KeyUse.SIGNATURE.value
         var crv: String? = null
         var d: String? = null
         var x: String? = null

@@ -30,7 +30,7 @@ app:
   security:
     users:
       - username: admin
-        password: "nimda"
+        password: nimda
         roles:
           - ADMIN
         authorities:
@@ -38,7 +38,7 @@ app:
           - WRITE
           - DELETE
       - username: user
-        password: "resu"
+        password: resu
         roles:
           - USER
         authorities:

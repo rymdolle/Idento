@@ -30,8 +30,8 @@ class IdentoController(
     private val jwtEncoder: JwtEncoder,
     private val jwkSource: ImmutableJWKSet<SecurityContext>,
 ) {
-    @PostMapping("/api/dev/auth/login", produces = ["text/plain"])
-    fun login(@AuthenticationPrincipal user: User): ResponseEntity<String> {
+    @PostMapping("/api/dev/auth/login", produces = ["application/json"])
+    fun login(@AuthenticationPrincipal user: User): Map<String, Any> {
         val now = Instant.now()
         val claims = JwtClaimsSet.builder()
             .issuer("Idento")
@@ -55,7 +55,7 @@ class IdentoController(
         val token = jwtEncoder.encode(params).tokenValue
 
         log.info { "Generated token: $token" }
-        return ResponseEntity.ok().body(token)
+        return mapOf("token" to token)
     }
 
     @GetMapping("/api/dev/auth/verify", produces = ["application/json"])

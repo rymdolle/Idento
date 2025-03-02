@@ -47,5 +47,5 @@ class User(
 @Configuration
 @ConfigurationProperties(prefix = "app.security")
 class UserProperties {
-    lateinit var users: List<User>
+    var users: List<User> = emptyList()
 }
