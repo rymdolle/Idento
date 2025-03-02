@@ -8,7 +8,7 @@ Authorization: Basic {{base64UsernamePassword}}
 
 ### Auth user login
 # @no-cookie-jar
-< {% client.global.set("base64UsernamePassword", Window.btoa('user:resu')) %}
+< {% client.global.set("base64UsernamePassword", Window.btoa('stina:test')) %}
 POST {{serverUrl}}/api/dev/auth/login
 Authorization: Basic {{base64UsernamePassword}}
 

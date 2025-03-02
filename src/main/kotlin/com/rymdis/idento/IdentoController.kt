@@ -1,6 +1,5 @@
 package com.rymdis.idento
 
-import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.KeyType
@@ -37,6 +36,7 @@ class IdentoController(
         val claims = JwtClaimsSet.builder()
             .issuer("Idento")
             .issuedAt(now)
+            .claim("scp", user.authorities.map { it.authority })
             .subject(user.username)
             .expiresAt(now.plus(30, ChronoUnit.MINUTES))
             .build()

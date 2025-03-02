@@ -7,6 +7,20 @@ server:
     whitelabel:
       enabled: false
 spring:
+  datasource:
+    url: jdbc:h2:mem:idento
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  h2:
+    console:
+      enabled: true
+      path: /monitor/h2-console
   application:
     name: Idento
   jackson:
@@ -16,7 +30,7 @@ app:
   security:
     users:
       - username: admin
-        password: nimda
+        password: "nimda"
         roles:
           - ADMIN
         authorities:
@@ -24,7 +38,7 @@ app:
           - WRITE
           - DELETE
       - username: user
-        password: resu
+        password: "resu"
         roles:
           - USER
         authorities:

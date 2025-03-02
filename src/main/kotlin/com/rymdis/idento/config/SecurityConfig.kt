@@ -1,33 +1,22 @@
 package com.rymdis.idento.config
 
-import io.github.oshai.kotlinlogging.KotlinLogging
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.EnableConfigurationProperties
+import com.rymdis.idento.service.DatabaseUserDetailsService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.core.userdetails.User
-import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.core.userdetails.UsernameNotFoundException
-import org.springframework.security.crypto.password.NoOpPasswordEncoder
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver
-import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.stereotype.Service
-
-private val log = KotlinLogging.logger {}
 
 @Configuration
 @EnableWebSecurity
-@EnableConfigurationProperties(SecurityProperties::class)
 class SecurityConfig {
     @Bean
     fun securityFilterChain(
@@ -59,44 +48,23 @@ class SecurityConfig {
 
     @Bean
     fun passwordEncoder(): PasswordEncoder {
-        return NoOpPasswordEncoder.getInstance()
+        val encoderId = "bcrypt"
+        val encoders = mutableMapOf<String, PasswordEncoder>()
+        encoders["bcrypt"] = BCryptPasswordEncoder()
+        return DelegatingPasswordEncoder(encoderId, encoders)
     }
 
     @Bean
     fun userAuthenticationManager(
-        userDetailsService: UserDetailsService,
+        databaseUserDetailsService: DatabaseUserDetailsService,
         passwordEncoder: PasswordEncoder,
         jwtProvider: JwtAuthenticationProvider,
     ): AuthenticationManager {
         val userProvider = DaoAuthenticationProvider()
-        userProvider.setUserDetailsService(userDetailsService)
+        userProvider.setUserDetailsService { username ->
+            databaseUserDetailsService.loadUserByUsername(username)
+        }
         userProvider.setPasswordEncoder(passwordEncoder)
         return ProviderManager(userProvider, jwtProvider)
-    }
-}
-
-@ConfigurationProperties(prefix = "app.security")
-data class SecurityProperties(val users: List<UserProperties>)
-
-data class UserProperties(
-    val username: String,
-    val password: String,
-    val roles: List<String> = emptyList(),
-    val authorities: List<String> = emptyList()
-)
-
-@Service
-@Primary
-class YamlUserDetailsManager(private val securityProperties: SecurityProperties) : UserDetailsService {
-    override fun loadUserByUsername(username: String): UserDetails {
-        return securityProperties.users
-            .find { it.username == username }
-            ?.let { user ->
-                User.withUsername(user.username)
-                    .password(user.password)
-                    .roles(*user.roles.toTypedArray())
-                    .authorities(*user.authorities.toTypedArray())
-                    .build()
-            } ?: throw UsernameNotFoundException("User not found")
     }
 }
