@@ -14,7 +14,7 @@ import java.util.*
 
 @Entity
 @Table(name = "idento_users")
-class UserEntity(
+class User(
     @Id
     @Column(columnDefinition = "UUID")
     val id: UUID = UUID.randomUUID(),
@@ -47,5 +47,5 @@ class UserEntity(
 @Configuration
 @ConfigurationProperties(prefix = "app.security")
 class UserProperties {
-    lateinit var users: List<UserEntity>
+    lateinit var users: List<User>
 }

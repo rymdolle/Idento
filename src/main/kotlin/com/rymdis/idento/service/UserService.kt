@@ -1,6 +1,6 @@
 package com.rymdis.idento.service
 
-import com.rymdis.idento.model.UserEntity
+import com.rymdis.idento.model.User
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Repository
@@ -14,18 +14,18 @@ class UserService(
     private val passwordEncoder: PasswordEncoder
 ) {
     @Transactional
-    fun createUser(user: UserEntity): UserEntity {
+    fun createUser(user: User): User {
         user.password = passwordEncoder.encode(user.password)
         return userRepository.save(user)
     }
 
     @Transactional(readOnly = true)
-    fun findByUsername(username: String): UserEntity? {
+    fun findByUsername(username: String): User? {
         return userRepository.findByUsername(username)
     }
 }
 
 @Repository
-interface UserRepository : JpaRepository<UserEntity, UUID> {
-    fun findByUsername(username: String): UserEntity?
+interface UserRepository : JpaRepository<User, UUID> {
+    fun findByUsername(username: String): User?
 }
