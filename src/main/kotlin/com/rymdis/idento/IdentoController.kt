@@ -1,5 +1,6 @@
 package com.rymdis.idento
 
+import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.KeyType
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.User
+import org.springframework.security.oauth2.jose.jws.JwsAlgorithms
 import org.springframework.security.oauth2.jwt.JwsHeader
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtClaimsSet
@@ -40,9 +42,9 @@ class IdentoController(
             .build()
         val key = jwkSource.jwkSet.keys.find { it.keyType == KeyType.EC }!!
         val algorithm = when ((key as ECKey).curve) {
-            Curve.P_256 -> "ES256"
-            Curve.P_384 -> "ES384"
-            Curve.P_521 -> "ES512"
+            Curve.P_256 -> JwsAlgorithms.ES256
+            Curve.P_384 -> JwsAlgorithms.ES384
+            Curve.P_521 -> JwsAlgorithms.ES512
             else -> throw IllegalArgumentException("Unsupported curve: ${key.curve}")
         }
         val headers = JwsHeader.with { algorithm }
