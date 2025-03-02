@@ -7,44 +7,20 @@ server:
     whitelabel:
       enabled: false
 spring:
+  application:
+    name: Idento
   datasource:
     url: jdbc:h2:mem:idento
     driver-class-name: org.h2.Driver
-    username: sa
-    password: password
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
     show-sql: false
-  h2:
-    console:
-      enabled: true
-      path: /monitor/h2-console
-  application:
-    name: Idento
   jackson:
     serialization:
       indent_output: true
-app:
-  security:
-    users:
-      - username: admin
-        password: nimda
-        roles:
-          - ADMIN
-        authorities:
-          - READ
-          - WRITE
-          - DELETE
-      - username: user
-        password: resu
-        roles:
-          - USER
-        authorities:
-          - READ
-          - WRITE
 logging:
   level:
-    com.rymdis.idento: DEBUG
+    com.rymdis.idento: INFO
     root: INFO
