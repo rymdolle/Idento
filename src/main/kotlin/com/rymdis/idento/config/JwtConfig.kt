@@ -17,6 +17,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.io.ClassPathResource
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.JwtEncoder
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
@@ -34,7 +35,10 @@ class JwtConfig(private val jwtProperties: JwtProperties) {
     @Bean
     fun jwkSource(): ImmutableJWKSet<SecurityContext> {
         val keys = jwtProperties.keys.map { key ->
-            key.toJWK()
+            if (!key.file.isNullOrBlank())
+                key.fromFileToJWK()
+            else
+                key.toJWK()
         }
         val jwkSet = JWKSet(keys.ifEmpty { listOf(
             generateECKey(),
@@ -91,6 +95,7 @@ class JwtProperties {
         var d: String? = null
         var x: String? = null
         var y: String? = null
+        var file: String? = null
 
         fun toJWK(): JWK {
             return ECKey.Builder(Curve.parse(crv), Base64URL(x), Base64URL(y))
@@ -98,6 +103,16 @@ class JwtProperties {
                     .keyID(kid)
                     .keyUse(KeyUse.parse(use))
                     .build()
+        }
+
+        fun fromFileToJWK(): JWK {
+            val pem = file?.let { ClassPathResource(file!!).inputStream.bufferedReader().readText() }
+                ?: throw IllegalArgumentException("Missing file")
+            val jwk = JWK.parseFromPEMEncodedObjects(pem) as ECKey
+            return ECKey.Builder(jwk)
+                .keyID(kid)
+                .keyUse(KeyUse.parse(use))
+                .build()
         }
     }
 }
