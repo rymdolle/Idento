@@ -9,6 +9,8 @@ server:
 spring:
   application:
     name: Idento
+  config:
+    import: optional:application-private.yml
   datasource:
     url: jdbc:h2:mem:idento
     driver-class-name: org.h2.Driver
