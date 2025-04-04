@@ -26,12 +26,12 @@ class User(
     var password: String,
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "roles", joinColumns = [JoinColumn(name = "id")])
+    @CollectionTable(name = "idento_roles", joinColumns = [JoinColumn(name = "id")])
     @Column(name = "role")
     var roles: MutableSet<String> = mutableSetOf(),
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "authorities", joinColumns = [JoinColumn(name = "id")])
+    @CollectionTable(name = "idento_authorities", joinColumns = [JoinColumn(name = "id")])
     @Column(name = "authority")
     var authorities: MutableSet<String> = mutableSetOf(),
 ) {

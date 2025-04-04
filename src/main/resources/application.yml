@@ -12,8 +12,10 @@ spring:
   config:
     import: optional:application-private.yml
   datasource:
-    url: jdbc:h2:mem:idento
-    driver-class-name: org.h2.Driver
+    url: jdbc:postgresql://localhost:5432/idento
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
