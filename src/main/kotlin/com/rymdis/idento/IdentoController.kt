@@ -6,7 +6,6 @@ import com.nimbusds.jose.jwk.KeyType
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet
 import com.nimbusds.jose.proc.SecurityContext
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.User
@@ -38,7 +37,7 @@ class IdentoController(
             .issuedAt(now)
             .claim("scp", user.authorities.map { it.authority })
             .subject(user.username)
-            .expiresAt(now.plus(30, ChronoUnit.MINUTES))
+            .expiresAt(now.plus(30, ChronoUnit.MINUTES)) // TODO: Make configurable
             .build()
         val key = jwkSource.jwkSet.keys.find { it.keyType == KeyType.EC }!!
         val algorithm = when ((key as ECKey).curve) {

@@ -7,6 +7,6 @@ RUN gradle build -x test
 
 FROM openjdk:21
 WORKDIR /app
-COPY --from=build /app/build/libs/Idento.jar Idento.jar
+COPY --from=build /app/build/libs/Idento-*.jar Idento.jar
 
 CMD ["java", "-jar", "Idento.jar"]

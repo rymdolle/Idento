@@ -8,7 +8,7 @@ Idento is a user management and authentication service built with Spring Boot an
 
 ## Prerequisites
 
-- JDK 11 or higher
+- JDK 21 or higher
 - Gradle
 
 ## Getting Started
@@ -32,7 +32,7 @@ gradle build
 gradle bootRun
 ```
 
-By default, the application runs on port 8000.
+By default, the application runs on port 8080.
 
 ## Configuration
 
@@ -54,17 +54,17 @@ gradle bootRun --args='--spring.profiles.active=dev'
 To set the active profile in IntelliJ:
 
 1. Go to `Run > Edit Configurations...`
-2. Select your Spring Boot application
-3. Add `-Dspring.profiles.active=dev` in VM options
+2. Select Spring Boot application
+3. Add `dev` to the list of active profiles
 4. Click Apply and OK
 
 ### Private Configuration
 
-For sensitive data like passwords and credentials:
+A private configuration is for sensitive data like credentials and keys:
 
 1. Create `application-private.yml` in `src/main/resources/`
-2. Add your sensitive configuration to this file
-3. The file is automatically ignored by Git
+2. Add sensitive configuration to this file
+3. Git will ignore this file to keep it private
 
 Example `application-private.yml`:
 ```yaml
@@ -72,44 +72,37 @@ app:
   security:
     users:
       - username: admin
-        password: your-secure-password
+        password: secure-password
         roles:
           - ADMIN
+        authorities:
+          - READ
+          - WRITE
+          - DELETE
   jwt:
     keys:
-      - kid: your-key-id
+      - kid: key-id
         kty: EC
         crv: P-256
         d: caNy0...
         x: 9aykLQn...
         y: AqpPj...
+      - kid: another-key-id
+        file: path/to/private/key.pem
 ```
+
+If no key is provided, the application will generate a new key on startup.
+
+A key can be generated from generateECKey() in [IdentoApplicationTests](src/test/kotlin/com/rymdis/idento/IdentoApplicationTests.kt)
 
 ## H2 Database
 
-In development mode, you can access the H2 console at:
+In dev profile, H2 console can be accessed at:
 - URL: `http://localhost:8080/h2-console`
 - JDBC URL: `jdbc:h2:mem:idento`
 - Username: `sa`
 
-## Default Users
-
-The development configuration includes these users:
-
-1. **Admin**
-    - Username: `admin`
-    - Password: `nimda`
-    - Roles: ADMIN
-    - Authorities: READ, WRITE, DELETE
-
-2. **User**
-    - Username: `user`
-    - Password: `resu`
-    - Roles: USER
-    - Authorities: READ, WRITE
-
 ## HTTP Client
 
 The project includes HTTP client configurations for testing the API:
-- Local environment: http://localhost:8080
-- Dev environment: https://idento.rymdis.com
+- dev environment: http://localhost:8080

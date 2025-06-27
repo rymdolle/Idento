@@ -1,0 +1,25 @@
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+logging:
+  level:
+    com.rymdis.idento: DEBUG
+app:
+  security:
+    users:
+      - username: admin
+        password: nimda
+        roles:
+          - ADMIN
+        authorities:
+          - READ
+          - WRITE
+          - DELETE
+      - username: user
+        password: resu
+        roles:
+          - USER
+        authorities:
+          - READ

@@ -65,21 +65,24 @@ class JwtConfig(private val jwtProperties: JwtProperties) {
         return NimbusJwtDecoder(processor)
     }
 
-    private fun generateECKey(curve: Curve = Curve.P_256): ECKey {
-        if (curve !in listOf(Curve.P_256, Curve.P_384, Curve.P_521)) {
-            throw IllegalArgumentException("Invalid curve")
+    companion object {
+        fun generateECKey(curve: Curve = Curve.P_256): ECKey {
+            if (curve !in listOf(Curve.P_256, Curve.P_384, Curve.P_521)) {
+                throw IllegalArgumentException("Invalid curve")
+            }
+            val keySize = curve.toECParameterSpec().order.bitLength()
+            val kpg = KeyPairGenerator.getInstance("EC")
+            kpg.initialize(keySize)
+            log.info { "Generating EC key $curve" }
+            val key = kpg.generateKeyPair()
+            return ECKey.Builder(curve, key.public as ECPublicKey)
+                .privateKey(key.private)
+                .keyID(UUID.randomUUID().toString())
+                .keyUse(KeyUse.SIGNATURE)
+                .build()
         }
-        val keySize = curve.toECParameterSpec().order.bitLength()
-        val kpg = KeyPairGenerator.getInstance("EC")
-        kpg.initialize(keySize)
-        log.info { "Generating EC key $curve" }
-        val key = kpg.generateKeyPair()
-        return ECKey.Builder(curve, key.public as ECPublicKey)
-            .privateKey(key.private)
-            .keyID(UUID.randomUUID().toString())
-            .keyUse(KeyUse.SIGNATURE)
-            .build()
     }
+
 }
 
 @Configuration
@@ -98,6 +101,7 @@ class JwtProperties {
         var file: String? = null
 
         fun toJWK(): JWK {
+            kty.equals("EC", ignoreCase = true) || throw IllegalArgumentException("Key type must be EC")
             return ECKey.Builder(Curve.parse(crv), Base64URL(x), Base64URL(y))
                     .d(Base64URL(d))
                     .keyID(kid)

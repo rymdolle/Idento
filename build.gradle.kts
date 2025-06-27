@@ -40,16 +40,6 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-tasks.named<Jar>("jar") {
-    enabled = true
-    archiveBaseName.set("Idento")
-    archiveVersion.set(version.toString())
-    archiveFileName.set("Idento.jar")
-    manifest {
-        attributes["Main-Class"] = "com.rymdis.idento.IdentoApplication"
-    }
-}
-
 kotlin {
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict")
