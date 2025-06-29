@@ -1,7 +1,9 @@
+@API_VERSION=v1
+
 ### Auth admin login
 # @no-cookie-jar
 < {% client.global.set("base64UsernamePassword", Window.btoa('admin:nimda')) %}
-POST {{serverUrl}}/api/dev/auth/login
+POST {{serverUrl}}/api/{{API_VERSION}}/auth/login
 Authorization: Basic {{base64UsernamePassword}}
 
 > {%
@@ -12,7 +14,7 @@ Authorization: Basic {{base64UsernamePassword}}
 ### Auth user login
 # @no-cookie-jar
 < {% client.global.set("base64UsernamePassword", Window.btoa('user:resu')) %}
-POST {{serverUrl}}/api/dev/auth/login
+POST {{serverUrl}}/api/{{API_VERSION}}/auth/login
 Authorization: Basic {{base64UsernamePassword}}
 
 > {%
@@ -25,13 +27,13 @@ GET {{serverUrl}}/.well-known/jwks.json
 
 ### Auth verify login
 < {% client.global.set("base64UsernamePassword", Window.btoa('user:resu')) %}
-GET {{serverUrl}}/api/dev/auth/verify
+GET {{serverUrl}}/api/{{API_VERSION}}/auth/verify
 Authorization: Basic {{base64UsernamePassword}}
 
 > {% client.assert(401 === response.status) %}
 
 ### Auth verify Bearer
-GET {{serverUrl}}/api/dev/auth/verify
+GET {{serverUrl}}/api/{{API_VERSION}}/auth/verify
 Authorization: Bearer {{JWTtoken}}
 
 > {% client.assert(200 === response.status) %}

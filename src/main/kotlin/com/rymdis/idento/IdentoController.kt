@@ -29,7 +29,7 @@ class IdentoController(
     private val jwtEncoder: JwtEncoder,
     private val jwkSource: ImmutableJWKSet<SecurityContext>,
 ) {
-    @PostMapping("/api/dev/auth/login", produces = ["application/json"])
+    @PostMapping("/api/${ApiVersion.V1}/auth/login", produces = ["application/json"])
     fun login(@AuthenticationPrincipal user: User): Map<String, Any> {
         val now = Instant.now()
         val claims = JwtClaimsSet.builder()
@@ -57,7 +57,7 @@ class IdentoController(
         return mapOf("token" to token)
     }
 
-    @GetMapping("/api/dev/auth/verify", produces = ["application/json"])
+    @GetMapping("/api/${ApiVersion.V1}/auth/verify", produces = ["application/json"])
     fun verify(@AuthenticationPrincipal jwt: Jwt?): Map<String, Any> {
         jwt ?: throw BadCredentialsException("Invalid token")
         return mapOf(

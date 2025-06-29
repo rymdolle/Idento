@@ -6,6 +6,24 @@ A Spring Boot application for managing user identity and authentication.
 
 Idento is a user management and authentication service built with Spring Boot and Kotlin. It provides role-based access control and configurable user permissions.
 
+The API supports the following endpoints:
+
+- `POST /api/v1/auth/login`
+  - Basic authentication to get a JWT token
+  - Return:
+    - `200 OK` with JWT
+      - `{"token": "<jwt>"}`
+    - `401 Unauthorized` if credentials are invalid
+- `GET /api/v1/auth/verify`
+  - Verify JWT token sent in the header `Authorization: Bearer <jwt>`
+  - Return:
+    - `200 OK` if token is valid
+    - `401 Unauthorized` if token is invalid or expired
+- `GET /.well-known/jwks.json`
+  - Retrieve JSON Web Key Set (JWKS) for public keys
+
+Tokens are set to expire after 30 minutes, and the application supports both in-memory and persistent storage for user data.
+
 ## Prerequisites
 
 - JDK 21 or higher

@@ -1,5 +1,6 @@
 package com.rymdis.idento.config
 
+import com.rymdis.idento.ApiVersion
 import com.rymdis.idento.service.DatabaseUserDetailsService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -12,7 +13,6 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver
 import org.springframework.security.web.SecurityFilterChain
 
 @Configuration
@@ -26,22 +26,15 @@ class SecurityConfig {
 
         return http
             .csrf { it.disable() }
-            .securityMatcher("/api/**")
+            .securityMatcher("/api/${ApiVersion.V1}/**")
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authenticationManager(userAuthenticationManager)
             .authorizeHttpRequests {
                 it.anyRequest().authenticated()
             }
-            .httpBasic { basic ->
-            }
+            .httpBasic { }
             .oauth2ResourceServer { oauth2 ->
-                oauth2.jwt { jwt ->
-                    jwt.jwkSetUri("https://idento.rymdis.com/.well-known/jwks.json")
-                }
-                oauth2.bearerTokenResolver { request ->
-                    val defaultBearer = DefaultBearerTokenResolver()
-                    defaultBearer.resolve(request)
-                }
+                oauth2.jwt { }
             }
             .build()
     }
@@ -49,8 +42,7 @@ class SecurityConfig {
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         val encoderId = "bcrypt"
-        val encoders = mutableMapOf<String, PasswordEncoder>()
-        encoders["bcrypt"] = BCryptPasswordEncoder()
+        val encoders = mapOf<String, PasswordEncoder>(encoderId to BCryptPasswordEncoder())
         return DelegatingPasswordEncoder(encoderId, encoders)
     }
 
