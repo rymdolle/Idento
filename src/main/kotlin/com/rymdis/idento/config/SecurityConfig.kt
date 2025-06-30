@@ -1,6 +1,6 @@
 package com.rymdis.idento.config
 
-import com.rymdis.idento.ApiVersion
+import com.rymdis.idento.config.ApiVersion
 import com.rymdis.idento.service.DatabaseUserDetailsService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

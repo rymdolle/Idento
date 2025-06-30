@@ -1,11 +1,13 @@
-package com.rymdis.idento
+package com.rymdis.idento.controller
 
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.KeyType
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet
 import com.nimbusds.jose.proc.SecurityContext
+import com.rymdis.idento.config.ApiVersion
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.http.MediaType
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.User
@@ -29,7 +31,7 @@ class IdentoController(
     private val jwtEncoder: JwtEncoder,
     private val jwkSource: ImmutableJWKSet<SecurityContext>,
 ) {
-    @PostMapping("/api/${ApiVersion.V1}/auth/login", produces = ["application/json"])
+    @PostMapping("/api/${ApiVersion.V1}/auth/login", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun login(@AuthenticationPrincipal user: User): Map<String, Any> {
         val now = Instant.now()
         val claims = JwtClaimsSet.builder()
@@ -57,7 +59,7 @@ class IdentoController(
         return mapOf("token" to token)
     }
 
-    @GetMapping("/api/${ApiVersion.V1}/auth/verify", produces = ["application/json"])
+    @GetMapping("/api/${ApiVersion.V1}/auth/verify", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun verify(@AuthenticationPrincipal jwt: Jwt?): Map<String, Any> {
         jwt ?: throw BadCredentialsException("Invalid token")
         return mapOf(
@@ -67,7 +69,7 @@ class IdentoController(
         )
     }
 
-    @GetMapping("/.well-known/jwks.json", produces = ["application/json"])
+    @GetMapping("/.well-known/jwks.json", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun jwks(): Map<String, List<Map<String, Any>>> {
         val keys = jwkSource.jwkSet.keys.map {
             it.toPublicJWK().toJSONObject()

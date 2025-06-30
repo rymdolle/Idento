@@ -1,5 +1,6 @@
 package com.rymdis.idento.service
 
+import com.rymdis.idento.repository.UserRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.annotation.Primary
 import org.springframework.security.core.authority.SimpleGrantedAuthority
