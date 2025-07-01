@@ -40,3 +40,4 @@ out/
 
 /src/test/resources/http/http-client.private.env.json
 /src/main/resources/application-private.yml
+logs/
