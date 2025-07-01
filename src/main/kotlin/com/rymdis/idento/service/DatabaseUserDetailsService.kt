@@ -18,7 +18,7 @@ class DatabaseUserDetailsService(
     private val userRepository: UserRepository,
 ) : UserDetailsService {
     override fun loadUserByUsername(username: String): UserDetails {
-        log.info { "Loading user from database: $username" }
+        log.debug { "Loading user from database: $username" }
 
         val userEntity = userRepository.findByUsername(username)
             ?: throw UsernameNotFoundException("User not found: $username")

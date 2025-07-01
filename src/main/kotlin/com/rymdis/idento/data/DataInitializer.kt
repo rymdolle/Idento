@@ -21,7 +21,7 @@ class DataInitializer(private val userProperties: UserProperties) {
                 if (userService.findByUsername(user.username) == null) {
                     userService.createUser(user)
                 } else {
-                    log.info { "User ${user.username} already exists" }
+                    log.warn { "User ${user.username} already exists. Skipping." }
                 }
             }
         }

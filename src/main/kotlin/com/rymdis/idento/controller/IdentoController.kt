@@ -58,7 +58,7 @@ class IdentoController(
         val params = JwtEncoderParameters.from(headers, claims)
         val token = jwtEncoder.encode(params).tokenValue
 
-        log.info { "Generated token: $token" }
+        log.debug { "Generated token: $token" }
         return mapOf("token" to token)
     }
 
