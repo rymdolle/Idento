@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet
 import com.nimbusds.jose.proc.SecurityContext
 import com.rymdis.idento.config.ApiVersion
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -18,8 +19,10 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet
 import org.springframework.security.oauth2.jwt.JwtEncoder
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -67,6 +70,13 @@ class IdentoController(
             "headers" to jwt.headers,
             "token" to jwt.tokenValue,
         )
+    }
+
+    @GetMapping("/api/${ApiVersion.V1}/auth/key/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun getKey(@PathVariable("id") id: String): Map<String, Any> {
+        val key = jwkSource.jwkSet.keys.find { it.keyID == id }
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        return key.toPublicJWK().toJSONObject()
     }
 
     @GetMapping("/.well-known/jwks.json", produces = [MediaType.APPLICATION_JSON_VALUE])

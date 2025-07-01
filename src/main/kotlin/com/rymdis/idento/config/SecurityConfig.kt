@@ -1,6 +1,5 @@
 package com.rymdis.idento.config
 
-import com.rymdis.idento.config.ApiVersion
 import com.rymdis.idento.service.DatabaseUserDetailsService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -30,6 +29,7 @@ class SecurityConfig {
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authenticationManager(userAuthenticationManager)
             .authorizeHttpRequests {
+                it.requestMatchers("/api/${ApiVersion.V1}/auth/key/**").permitAll()
                 it.anyRequest().authenticated()
             }
             .httpBasic { }

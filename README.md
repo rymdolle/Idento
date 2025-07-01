@@ -21,6 +21,11 @@ The API supports the following endpoints:
     - `401 Unauthorized` if token is invalid or expired
 - `GET /.well-known/jwks.json`
   - Retrieve JSON Web Key Set (JWKS) for public keys
+- `GET /api/v1/auth/key/{id}`
+  - Retrieve public key by ID
+  - Return:
+    - `200 OK` with public key in JWK format
+    - `404 Not Found` if key does not exist
 
 Tokens are set to expire after 30 minutes, and the application supports both in-memory and persistent storage for user data.
 
