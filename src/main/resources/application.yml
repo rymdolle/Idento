@@ -26,3 +26,4 @@ logging:
   level:
     com.rymdis.idento: INFO
     root: INFO
+app.security.token.ttl: 1800 # 30 minutes

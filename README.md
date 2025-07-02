@@ -27,7 +27,9 @@ The API supports the following endpoints:
     - `200 OK` with public key in JWK format
     - `404 Not Found` if key does not exist
 
-Tokens are set to expire after 30 minutes, and the application supports both in-memory and persistent storage for user data.
+Tokens are by default set to expire after 30 minutes. To change the token expiration, set `app.security.token.ttl` in the properties file.
+
+The application supports both in-memory and persistent storage for user data. To change from default h2 set `spring.datasource` in the properties file.
 
 ## Prerequisites
 

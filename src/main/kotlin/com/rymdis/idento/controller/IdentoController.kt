@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet
 import com.nimbusds.jose.proc.SecurityContext
 import com.rymdis.idento.config.ApiVersion
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.BadCredentialsException
@@ -34,15 +35,19 @@ class IdentoController(
     private val jwtEncoder: JwtEncoder,
     private val jwkSource: ImmutableJWKSet<SecurityContext>,
 ) {
+
     @PostMapping("/api/${ApiVersion.V1}/auth/login", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun login(@AuthenticationPrincipal user: User): Map<String, Any> {
+    fun login(
+        @AuthenticationPrincipal user: User,
+        @Value("\${app.security.token.ttl:1800}") ttl : Long,
+    ): Map<String, Any> {
         val now = Instant.now()
         val claims = JwtClaimsSet.builder()
             .issuer("Idento")
             .issuedAt(now)
             .claim("scp", user.authorities.map { it.authority })
             .subject(user.username)
-            .expiresAt(now.plus(30, ChronoUnit.MINUTES)) // TODO: Make configurable
+            .expiresAt(now.plus(ttl, ChronoUnit.SECONDS))
             .build()
         val key = jwkSource.jwkSet.keys.find { it.keyType == KeyType.EC }!!
         val algorithm = when ((key as ECKey).curve) {
