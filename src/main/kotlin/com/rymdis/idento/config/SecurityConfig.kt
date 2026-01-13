@@ -12,6 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 
 @Configuration
@@ -41,8 +42,11 @@ class SecurityConfig {
 
     @Bean
     fun passwordEncoder(): PasswordEncoder {
-        val encoderId = "bcrypt"
-        val encoders = mapOf<String, PasswordEncoder>(encoderId to BCryptPasswordEncoder())
+        val encoderId = "pbkdf2"
+        val encoders = mapOf<String, PasswordEncoder>(
+            "bcrypt" to BCryptPasswordEncoder(),
+            encoderId to Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8(),
+        )
         return DelegatingPasswordEncoder(encoderId, encoders)
     }
 
