@@ -15,9 +15,8 @@ spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: false
   jackson:
     serialization:
