@@ -1,6 +1,6 @@
 package com.rymdis.idento.config
 
-import com.rymdis.idento.service.DatabaseUserDetailsService
+import com.rymdis.idento.service.UserService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -52,13 +52,13 @@ class SecurityConfig {
 
     @Bean
     fun userAuthenticationManager(
-        databaseUserDetailsService: DatabaseUserDetailsService,
+        userService: UserService,
         passwordEncoder: PasswordEncoder,
         jwtProvider: JwtAuthenticationProvider,
     ): AuthenticationManager {
         val userProvider = DaoAuthenticationProvider()
         userProvider.setUserDetailsService { username ->
-            databaseUserDetailsService.loadUserByUsername(username)
+            userService.loadUserByUsername(username)
         }
         userProvider.setPasswordEncoder(passwordEncoder)
         return ProviderManager(userProvider, jwtProvider)
