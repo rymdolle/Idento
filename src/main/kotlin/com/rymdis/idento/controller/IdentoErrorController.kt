@@ -21,6 +21,7 @@ class IdentoErrorController : ErrorController {
             "timestamp" to Instant.now(),
             "status" to status,
             "error" to HttpStatus.resolve(status)?.reasonPhrase,
+            "message" to request.getAttribute(RequestDispatcher.ERROR_MESSAGE),
             "path" to request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI),
         )
         return ResponseEntity.status(status).body(body)
