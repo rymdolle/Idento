@@ -40,10 +40,11 @@ class IdentoController(
     fun login(
         @AuthenticationPrincipal user: User,
         @Value("\${app.security.token.ttl:1800}") ttl : Long,
+        @Value("\${app.security.token.issuer:Idento}") issuer : String
     ): Map<String, Any> {
         val now = Instant.now()
         val claims = JwtClaimsSet.builder()
-            .issuer("Idento")
+            .issuer(issuer)
             .issuedAt(now)
             .claim("scp", user.authorities.map { it.authority })
             .subject(user.username)

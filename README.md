@@ -60,6 +60,15 @@ gradle bootRun
 By default, the application runs on port 8080.
 
 ## Configuration
+Configurable properties can be set in `application.yml` or via
+environment variables.
+
+| Key                       | Description                     |
+|---------------------------|---------------------------------|
+| app.security.token.issuer | Issuer field in jwt             |
+| app.security.token.ttl    | Time seconds for token lifetime |
+|                           |                                 |
+
 
 ### Profiles
 
@@ -67,6 +76,8 @@ Idento supports different configuration profiles:
 
 - **default**: Uses in-memory H2 database
 - **dev**: Enables H2 console and debug logging (port 8080)
+- **mssql**: Configures connection to Microsoft SQL Server
+- **postgres**: Configures connection to PostgreSQL
 
 To specify a profile when running:
 
@@ -83,18 +94,16 @@ To set the active profile in IntelliJ:
 3. Add `dev` to the list of active profiles
 4. Click Apply and OK
 
-### Private Configuration
+### Example Configuration
 
-A private configuration is for sensitive data like credentials and keys:
+`application-private.yml`:
 
-1. Create `application-private.yml` in `src/main/resources/`
-2. Add sensitive configuration to this file
-3. Git will ignore this file to keep it private
-
-Example `application-private.yml`:
 ```yaml
 app:
   security:
+    token:
+      issuer: my-issuer
+      ttl: 3600
     users:
       - username: admin
         password: secure-password
