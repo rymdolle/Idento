@@ -14,15 +14,8 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms
-import org.springframework.security.oauth2.jwt.JwsHeader
-import org.springframework.security.oauth2.jwt.Jwt
-import org.springframework.security.oauth2.jwt.JwtClaimsSet
-import org.springframework.security.oauth2.jwt.JwtEncoder
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.security.oauth2.jwt.*
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -46,7 +39,7 @@ class IdentoController(
         val claims = JwtClaimsSet.builder()
             .issuer(issuer)
             .issuedAt(now)
-            .claim("scp", user.authorities.map { it.authority })
+            .claim("authorities", user.authorities.map { it.authority })
             .subject(user.username)
             .expiresAt(now.plus(ttl, ChronoUnit.SECONDS))
             .build()
@@ -79,7 +72,7 @@ class IdentoController(
     }
 
     @GetMapping("/api/${ApiVersion.V1}/auth/key/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getKey(@PathVariable("id") id: String): Map<String, Any> {
+    fun getKey(@PathVariable id: String): Map<String, Any> {
         val key = jwkSource.jwkSet.keys.find { it.keyID == id }
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
         return key.toPublicJWK().toJSONObject()
