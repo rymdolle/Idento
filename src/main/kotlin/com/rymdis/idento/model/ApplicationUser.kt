@@ -8,8 +8,6 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.Table
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.context.annotation.Configuration
 import java.util.*
 
 @Entity
@@ -42,10 +40,4 @@ class ApplicationUser(
         roles = mutableSetOf(),
         authorities = mutableSetOf(),
     )
-}
-
-@Configuration
-@ConfigurationProperties(prefix = "app.security")
-class UserProperties {
-    var users: List<ApplicationUser> = emptyList()
 }
