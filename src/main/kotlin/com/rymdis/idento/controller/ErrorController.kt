@@ -16,7 +16,7 @@ import java.time.Instant
 @RestControllerAdvice
 @RestController
 @RequestMapping("/error")
-class IdentoErrorController : ErrorController {
+class ErrorController : ErrorController {
     @RequestMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     fun handleError(request: HttpServletRequest): ResponseEntity<Map<String, Any?>> {
         val status = (request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE) as? Int)?.let {
