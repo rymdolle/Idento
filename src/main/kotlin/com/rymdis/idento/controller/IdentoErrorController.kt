@@ -22,22 +22,30 @@ class IdentoErrorController : ErrorController {
         val status = (request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE) as? Int)?.let {
             HttpStatus.resolve(it)
         } ?: HttpStatus.INTERNAL_SERVER_ERROR
-        return errorResponse(status, request)
+        val body = errorResponse(status, request)
+        return ResponseEntity.status(status).body(body)
     }
 
     @ExceptionHandler(DomainException::class)
-    fun handleDomainException(ex: DomainException, request: HttpServletRequest): ResponseEntity<Map<String, Any?>> {
-        return errorResponse(ex.status, request)
+    fun handleDomainException(
+        ex: DomainException,
+        request: HttpServletRequest,
+    ): ResponseEntity<Map<String, Any?>> {
+        val body = errorResponse(ex.status, request).toMutableMap().apply {
+            this["message"] = ex.reason
+        }
+        return ResponseEntity.status(ex.status).body(body)
     }
 
-    fun errorResponse(status: HttpStatus, request: HttpServletRequest) : ResponseEntity<Map<String, Any?>> {
-        val body = mapOf(
+    private fun errorResponse(
+        status: HttpStatus,
+        request: HttpServletRequest,
+    ): Map<String, Any?> {
+        return mapOf(
             "timestamp" to Instant.now(),
             "status" to status.value(),
             "error" to status.reasonPhrase,
-            "message" to request.getAttribute(RequestDispatcher.ERROR_MESSAGE),
-            "path" to request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI),
+            "path" to request.requestURI,
         )
-        return ResponseEntity.status(status).body(body)
     }
 }

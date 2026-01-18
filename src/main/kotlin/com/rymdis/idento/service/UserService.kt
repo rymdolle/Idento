@@ -1,5 +1,8 @@
 package com.rymdis.idento.service
 
+import com.rymdis.idento.exception.BadArgumentException
+import com.rymdis.idento.exception.UserExistsExceptions
+import com.rymdis.idento.exception.UserNotFoundException
 import com.rymdis.idento.model.ApplicationUser
 import com.rymdis.idento.repository.UserRepository
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -10,27 +13,26 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.*
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
 ) : UserDetailsService {
+    @Transactional
     override fun loadUserByUsername(username: String): UserDetails {
-        val user = userRepository.findByUsername(username)
+        val user = findByUsername(username)
             ?: throw UsernameNotFoundException("User not found: $username")
 
         // Create authorities from both roles and authorities
-        val authorities = mutableListOf<SimpleGrantedAuthority>()
+        val authorities = user.authorities.map {
+            SimpleGrantedAuthority(it)
+        }.toMutableSet()
 
         // Add role-based authorities with ROLE_ prefix
         user.roles.forEach { role ->
             authorities.add(SimpleGrantedAuthority("ROLE_$role"))
-        }
-
-        // Add direct authorities
-        user.authorities.forEach { authority ->
-            authorities.add(SimpleGrantedAuthority(authority))
         }
 
         return User.builder()
@@ -42,8 +44,19 @@ class UserService(
 
     @Transactional
     fun createUser(user: ApplicationUser): ApplicationUser {
+        if (userRepository.existsByUsername(user.username)) {
+            throw UserExistsExceptions()
+        }
         user.password = passwordEncoder.encode(user.password)
         return userRepository.save(user)
+    }
+
+    @Transactional
+    fun deleteUser(id: UUID) {
+        if (!userRepository.existsById(id)) {
+            throw UserNotFoundException()
+        }
+        userRepository.deleteById(id)
     }
 
     @Transactional(readOnly = true)
@@ -52,7 +65,54 @@ class UserService(
     }
 
     @Transactional(readOnly = true)
+    fun getById(id: UUID): ApplicationUser {
+        return userRepository.findById(id).orElseThrow {
+            throw UserNotFoundException()
+        }
+    }
+
+    @Transactional(readOnly = true)
     fun existsByUsername(username: String): Boolean {
         return userRepository.existsByUsername(username)
     }
+
+    @Transactional(readOnly = true)
+    fun existsById(id: UUID): Boolean {
+        return userRepository.existsById(id)
+    }
+
+    @Transactional
+    fun addRole(id: UUID, role: String) {
+        if (role.startsWith("ROLE_")) {
+            throw BadArgumentException("Role cannot start with ROLE_")
+        }
+        val user = getById(id)
+        user.roles.add(role)
+        userRepository.save(user)
+    }
+
+    @Transactional
+    fun removeRole(id: UUID, role: String) {
+        val user = getById(id)
+        user.roles.remove(role)
+        userRepository.save(user)
+    }
+
+    @Transactional
+    fun addAuthority(id: UUID, authority: String) {
+        if (authority.startsWith("ROLE_")) {
+            throw BadArgumentException("Authority cannot start with ROLE_")
+        }
+        val user = getById(id)
+        user.authorities.add(authority)
+        userRepository.save(user)
+    }
+
+    @Transactional
+    fun removeAuthority(id: UUID, authority: String) {
+        val user = getById(id)
+        user.authorities.remove(authority)
+        userRepository.save(user)
+    }
+
 }
