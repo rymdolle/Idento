@@ -113,16 +113,16 @@ app:
           - READ
           - WRITE
           - DELETE
-  jwt:
-    keys:
-      - kid: key-id
-        kty: EC
-        crv: P-256
-        d: caNy0...
-        x: 9aykLQn...
-        y: AqpPj...
-      - kid: another-key-id
-        file: path/to/private/key.pem
+    jwks:
+      keys:
+        - kid: key-id
+          kty: EC
+          crv: P-256
+          d: caNy0...
+          x: 9aykLQn...
+          y: AqpPj...
+        - kid: another-key-id
+          file: path/to/private/key.pem
 ```
 
 If no key is provided, the application will generate a new key on startup.

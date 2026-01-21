@@ -1,8 +1,8 @@
 package com.rymdis.idento.service
 
+import com.rymdis.idento.exception.AlreadyExistsExceptions
 import com.rymdis.idento.exception.BadArgumentException
-import com.rymdis.idento.exception.UserExistsExceptions
-import com.rymdis.idento.exception.UserNotFoundException
+import com.rymdis.idento.exception.NotFoundException
 import com.rymdis.idento.model.ApplicationUser
 import com.rymdis.idento.repository.UserRepository
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -43,18 +43,21 @@ class UserService(
     }
 
     @Transactional
-    fun createUser(user: ApplicationUser): ApplicationUser {
-        if (userRepository.existsByUsername(user.username)) {
-            throw UserExistsExceptions()
+    fun createUser(username: String, password: String): ApplicationUser {
+        if (userRepository.existsByUsername(username)) {
+            throw AlreadyExistsExceptions("User")
         }
-        user.password = passwordEncoder.encode(user.password)
-        return userRepository.save(user)
+        val encodedPassword = passwordEncoder.encode(password)
+        return userRepository.save(ApplicationUser(
+            username = username,
+            password = encodedPassword,
+        ))
     }
 
     @Transactional
     fun deleteUser(id: UUID) {
         if (!userRepository.existsById(id)) {
-            throw UserNotFoundException()
+            throw NotFoundException("User")
         }
         userRepository.deleteById(id)
     }
@@ -67,7 +70,7 @@ class UserService(
     @Transactional(readOnly = true)
     fun getById(id: UUID): ApplicationUser {
         return userRepository.findById(id).orElseThrow {
-            throw UserNotFoundException()
+            throw NotFoundException("User")
         }
     }
 

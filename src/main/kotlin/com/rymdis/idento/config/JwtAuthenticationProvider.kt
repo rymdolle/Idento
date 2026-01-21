@@ -16,7 +16,7 @@ class JwtAuthenticationProvider(private val jwtDecoder: JwtDecoder) : Authentica
         val bearer = authentication as BearerTokenAuthenticationToken
         try {
             val jwt = jwtDecoder.decode(bearer.token)
-            val scp = jwt.claims["authorities"] as? List<*>
+            val scp = jwt.claims["scp"] as? List<*>
             val authorities = scp?.map {
                 SimpleGrantedAuthority(it as String)
             }

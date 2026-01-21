@@ -1,6 +1,6 @@
 package com.rymdis.idento.data
 
-import com.rymdis.idento.model.ApplicationUser
+import com.rymdis.idento.dto.UserDto
 import com.rymdis.idento.service.UserService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.boot.CommandLineRunner
@@ -20,7 +20,13 @@ class DataInitializer(private val userProperties: UserProperties) {
         return CommandLineRunner {
             userProperties.users.forEach { user ->
                 if (!userService.existsByUsername(user.username)) {
-                    userService.createUser(user)
+                    val createdUser = userService.createUser(user.username, user.password)
+                    user.roles.forEach { role ->
+                        userService.addRole(createdUser.id, role)
+                    }
+                    user.authorities.forEach { authority ->
+                        userService.addAuthority(createdUser.id, authority)
+                    }
                 } else {
                     log.warn { "User ${user.username} already exists. Skipping." }
                 }
@@ -32,5 +38,5 @@ class DataInitializer(private val userProperties: UserProperties) {
 @Configuration
 @ConfigurationProperties(prefix = "app.security")
 class UserProperties {
-    var users: List<ApplicationUser> = emptyList()
+    var users: List<UserDto> = emptyList()
 }

@@ -5,6 +5,7 @@ import jakarta.servlet.RequestDispatcher
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.boot.web.servlet.error.ErrorController
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -22,7 +23,7 @@ class ErrorController : ErrorController {
         val status = (request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE) as? Int)?.let {
             HttpStatus.resolve(it)
         } ?: HttpStatus.INTERNAL_SERVER_ERROR
-        val body = errorResponse(status, request)
+        val body = errorResponse(status, status.reasonPhrase, request)
         return ResponseEntity.status(status).body(body)
     }
 
@@ -31,20 +32,19 @@ class ErrorController : ErrorController {
         ex: DomainException,
         request: HttpServletRequest,
     ): ResponseEntity<Map<String, Any?>> {
-        val body = errorResponse(ex.status, request).toMutableMap().apply {
-            this["message"] = ex.reason
-        }
-        return ResponseEntity.status(ex.status).body(body)
+        val body = errorResponse(ex.statusCode, ex.reason, request)
+        return ResponseEntity.status(ex.statusCode).body(body)
     }
 
     private fun errorResponse(
-        status: HttpStatus,
+        status: HttpStatusCode,
+        reason: String?,
         request: HttpServletRequest,
     ): Map<String, Any?> {
         return mapOf(
             "timestamp" to Instant.now(),
             "status" to status.value(),
-            "error" to status.reasonPhrase,
+            "error" to reason,
             "path" to request.requestURI,
         )
     }

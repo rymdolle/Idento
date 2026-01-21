@@ -1,10 +1,11 @@
 package com.rymdis.idento.controller
 
 import com.rymdis.idento.config.ApiVersion
+import com.rymdis.idento.dto.UserDto
 import com.rymdis.idento.exception.MissingArgumentException
-import com.rymdis.idento.model.ApplicationUser
 import com.rymdis.idento.service.UserService
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -14,24 +15,25 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.util.UriComponentsBuilder
 import java.util.*
 
 @RestController
 @PreAuthorize("hasRole('ADMIN')")
-@RequestMapping("/api/${ApiVersion.V1}/user")
-class UserController(
+@RequestMapping("/api/${ApiVersion.V1}/users")
+class UsersController(
     private val userService: UserService,
 ) {
     @PostMapping(
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE])
     fun createUser(
-        @RequestBody user : ApplicationUser,
+        @RequestBody user : UserDto,
         request: HttpServletRequest,
     ): ResponseEntity<Map<String, Any?>> {
-        val createdUser = userService.createUser(user)
+        val createdUser = userService.createUser(user.username, user.password)
         val location = UriComponentsBuilder
             .fromPath(request.requestURI)
             .path("/{id}")
@@ -56,11 +58,12 @@ class UserController(
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteUser(@PathVariable id: UUID) {
         userService.deleteUser(id)
     }
 
-    @PostMapping("/{id}/role/add",
+    @PostMapping("/{id}/roles",
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE])
     fun addUserToRole(@PathVariable id: UUID, @RequestBody body: Map<String, String>) {
@@ -68,7 +71,7 @@ class UserController(
         userService.addRole(id, role)
     }
 
-    @PostMapping("/{id}/authority/add",
+    @PostMapping("/{id}/authorities",
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE])
     fun addUserToAuthority(@PathVariable id: UUID, @RequestBody body: Map<String, String>) {

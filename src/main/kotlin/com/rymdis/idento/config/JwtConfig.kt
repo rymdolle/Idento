@@ -29,12 +29,12 @@ import java.util.*
 private val log = KotlinLogging.logger {}
 
 @Configuration
-@EnableConfigurationProperties(JwtProperties::class)
-class JwtConfig(private val jwtProperties: JwtProperties) {
+@EnableConfigurationProperties(JwkProperties::class)
+class JwtConfig(private val jwkProperties: JwkProperties) {
 
     @Bean
     fun jwkSource(): ImmutableJWKSet<SecurityContext> {
-        val keys = jwtProperties.keys.map { key ->
+        val keys = jwkProperties.keys.map { key ->
             if (!key.file.isNullOrBlank())
                 key.fromFileToJWK()
             else
@@ -86,8 +86,8 @@ class JwtConfig(private val jwtProperties: JwtProperties) {
 }
 
 @Configuration
-@ConfigurationProperties(prefix = "app.security.jwt")
-class JwtProperties {
+@ConfigurationProperties(prefix = "app.security.jwks")
+class JwkProperties {
     var keys: List<JwkKey> = emptyList()
 
     class JwkKey {

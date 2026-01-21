@@ -1,5 +1,7 @@
 @API_VERSION=v1
 
+@serverUrl=http://localhost:8080
+
 ### Auth admin login
 # @no-cookie-jar
 < {% client.global.set("base64UsernamePassword", Window.btoa('admin:nimda')) %}
@@ -37,3 +39,29 @@ GET {{serverUrl}}/api/{{API_VERSION}}/auth/verify
 Authorization: Bearer {{JWTtoken}}
 
 > {% client.assert(200 === response.status) %}
+
+### User create
+POST {{serverUrl}}/api/{{API_VERSION}}/users
+Authorization: Bearer {{JWTtoken}}
+Content-Type: application/json
+
+{
+  "username": "test",
+  "password": "",
+  "roles": [
+    "USER"
+  ],
+  "authorities": []
+}
+
+> {%
+    client.assert(201 === response.status)
+    client.global.set("userId", response.body.id)
+%}
+
+### User delete
+DELETE {{serverUrl}}/api/{{API_VERSION}}/users/{{userId}}
+Authorization: Bearer {{JWTtoken}}
+Content-Type: application/json
+
+> {% client.assert(204 === response.status) %}

@@ -23,3 +23,11 @@ app:
           - USER
         authorities:
           - READ
+    jwks:
+      keys:
+        - kid: d845245c-a76c-4b94-8e0c-c094f6abd541
+          kty: EC
+          crv: P-256
+          d: 9ynDGJjFBn3su8uYeC7jwK2istbwFm4RbM8atUEAqk8
+          x: 4Is6inLKDvItHnXGIMvHuWqJs3dApi_OTrQSFZzVGjo
+          y: zgKK4YiKz-05FvqPGq7T09bP67i9fu5zEMIEhdNQwS8
